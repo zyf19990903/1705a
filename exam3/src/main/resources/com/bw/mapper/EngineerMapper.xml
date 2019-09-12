@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper   
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bw.mapper.EngineerDao">
+	<select id="findByName" resultType="com.bw.bean.Profession"
+		parameterType="string">
+		select * from t_profession
+		<where>
+			<if test="_parameter != null and _parameter!= ''">
+				pname = #{_parameter}
+			</if>
+			<if test="_parameter == null and _parameter == ''">
+				pname = ''
+			</if>
+		</where>
+	</select>
+	<insert id="insertEngineer" parameterType="com.bw.bean.Engineer">
+		insert into t_engineer
+		(ename, sex, area, gboos, spname, pid1, pid2, num, registnum, time)
+		values
+		(#{ename},#{sex},#{area},#{gboos},#{spname},#{pid1},#{pid2},#{num},#{registnum},#{time})
+	</insert>
+	<select id="findAllProfession" resultType="com.bw.bean.Profession">
+		select * from
+		t_profession
+	</select>
+	<select id="findAllEnfineer" parameterType="map" resultType="map">
+		select eid,ename,sex,area,gboos,spname,p1.pname pname1,p2.pname
+		pname2,num,registnum,time from t_engineer e LEFT JOIN t_profession p1
+		on e.pid1 = p1.pid LEFT JOIN t_profession p2 on e.pid2 = p2.pid
+		<where>
+			<if test="sname != null and sname != ''">
+				ename like concat("%",#{sname},"%")
+			</if>
+			<if test="areaname != null and areaname != ''">
+				and area like concat("%",#{areaname},"%")
+			</if>
+			<if test="pid >0 and pid != null">
+				and e.pid1 = #{pid} or ename like
+				concat("%",#{sname},"%")
+				and area like concat("%",#{areaname},"%")
+				and e.pid2 = #{pid}
+			</if>
+		</where>
+	</select>
+	<delete id="delAllEngineer">
+		delete from t_engineer where eid in
+		<foreach collection="array" item="eids" open="(" close=")"
+			separator=",">
+			#{eids}
+		</foreach>
+	</delete>
+	<delete id="delByEid" parameterType="int">
+		delete from t_engineer where
+		eid = #{0}
+	</delete>
+	<select id="findByEid" parameterType="int" resultType="com.bw.bean.Engineer">
+		select
+		eid,ename,sex,area,gboos,spname,e.pid1,e.pid2,num,registnum,time from
+		t_engineer e LEFT JOIN t_profession p1 on e.pid1 = p1.pid LEFT JOIN
+		t_profession p2 on e.pid2 = p2.pid where eid = #{0}
+	</select>
+	<update id="update" parameterType="com.bw.bean.Engineer">
+		update t_engineer set ename =#{ename},
+		sex=#{sex},area=#{area},gboos=#{gboos},spname=#{spname},pid1=#{pid1},pid2=#{pid2},num=#{num},registnum=#{registnum},time=#{time}
+		where eid =#{eid}
+	</update>
+</mapper>
